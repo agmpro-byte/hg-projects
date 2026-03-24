@@ -110,6 +110,25 @@
 <h1>Salesforce to AGM Data Migration Map</h1>
 <p class="subtitle">Heavenly Greens — Every SF object mapped to its AGM destination</p>
 
+<!-- Three Operating Contexts -->
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px;">
+  <div style="background:rgba(100,116,139,0.1);border:1px solid rgba(100,116,139,0.25);border-radius:8px;padding:16px;">
+    <div style="font-weight:700;color:#94a3b8;font-size:12px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Context 1: Historical</div>
+    <div style="font-size:13px;color:#e0e0e0;font-weight:600;margin-bottom:4px;">Completed jobs from SF</div>
+    <div style="font-size:12px;color:#8a9bb5;">Reference data only. Custom fields + structured notes. No pipeline workflow. Change orders as data, not pipeline records.</div>
+  </div>
+  <div style="background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.25);border-radius:8px;padding:16px;">
+    <div style="font-weight:700;color:#22c55e;font-size:12px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Context 2: Costco (AGM-Native)</div>
+    <div style="font-size:13px;color:#e0e0e0;font-weight:600;margin-bottom:4px;">Full lifecycle in AGM</div>
+    <div style="font-size:12px;color:#8a9bb5;">Leads originate in AGM via CENTAH. Sales process in AGM. Change orders run through AGM pipeline (Submitted &rarr; Sent &rarr; Approved). SF gets a copy.</div>
+  </div>
+  <div style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.25);border-radius:8px;padding:16px;">
+    <div style="font-weight:700;color:#60a5fa;font-size:12px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Context 3: Standard HG</div>
+    <div style="font-size:13px;color:#e0e0e0;font-weight:600;margin-bottom:4px;">AGM lead capture &rarr; SF sales</div>
+    <div style="font-size:12px;color:#8a9bb5;">Leads land in AGM (website, chat, calls). Sales process managed in SF. Stage sync keeps AGM updated. Full cutover to AGM is a future decision.</div>
+  </div>
+</div>
+
 <div class="stats">
   <div class="stat">
     <div class="stat-value">14</div>
@@ -400,13 +419,12 @@
     <div class="method"><span class="tag note">note</span> Batched into one reference note</div>
   </div>
 
-  <div class="decision-box">
-    <h3>Decision Required: Change Order Handling</h3>
-    <ul>
-      <li>Active jobs: individual pipeline opportunities (trackable, stage-based) or just custom fields + notes?</li>
-      <li>Historical completed jobs: structured note sufficient, or does Tim need them as pipeline records too?</li>
-      <li>The 50 existing CO product fields (turf, base, edging, infill, etc.) — should SF CO descriptions be parsed into these, or is the free-text note enough?</li>
-    </ul>
+  <div style="background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.25);border-radius:8px;padding:16px;margin:16px 0 32px 0;">
+    <h3 style="color:#22c55e;font-size:14px;margin-bottom:8px;">Resolved: Change Order Handling</h3>
+    <div style="color:#94a3b8;font-size:13px;line-height:1.6;">
+      <strong style="color:#e0e0e0;">Historical (completed SF jobs):</strong> Data capture only. CO details go into custom fields (CO TOTAL, CO DESCRIPTION, CO REVISED CONTRACT TOTAL) + structured note. No pipeline involvement — the job is done.<br><br>
+      <strong style="color:#e0e0e0;">New AGM-native jobs (Costco leads):</strong> Change orders run through the Change Order pipeline (Submitted &rarr; Sent &rarr; Approved) as live trackable opportunities. Full workflow applies.
+    </div>
   </div>
 </div>
 
