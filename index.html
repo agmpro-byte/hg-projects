@@ -401,6 +401,10 @@ h1, h2, h3, h4, .section-hdr, .stat-label {
 }
 
 .lead-table tr:hover td { background: #0a0a0a; }
+.lead-table th:hover { color: #fff; }
+.sort-arrow { font-size: 0.5rem; color: #555; }
+.sort-arrow.asc::after { content: ' ▲'; color: #3b82f6; }
+.sort-arrow.desc::after { content: ' ▼'; color: #3b82f6; }
 
 .lead-table .name { color: #fff; font-weight: 600; }
 .lead-table .dim { color: #555; }
@@ -1049,12 +1053,12 @@ h1, h2, h3, h4, .section-hdr, .stat-label {
         <table class="lead-table" id="costco-lead-table">
           <thead>
             <tr>
-              <th>Lead</th>
-              <th>Status</th>
-              <th>Store</th>
-              <th>Turf Type</th>
-              <th>Stage</th>
-              <th style="text-align:right">Amount</th>
+              <th style="cursor:pointer" onclick="sortCostcoLeads('name')">Lead <span class="sort-arrow" id="sort-name"></span></th>
+              <th style="cursor:pointer" onclick="sortCostcoLeads('status')">Status <span class="sort-arrow" id="sort-status"></span></th>
+              <th style="cursor:pointer" onclick="sortCostcoLeads('store')">Store <span class="sort-arrow" id="sort-store"></span></th>
+              <th style="cursor:pointer" onclick="sortCostcoLeads('turf')">Turf Type <span class="sort-arrow" id="sort-turf"></span></th>
+              <th style="cursor:pointer" onclick="sortCostcoLeads('stage')">Stage <span class="sort-arrow" id="sort-stage"></span></th>
+              <th style="cursor:pointer;text-align:right" onclick="sortCostcoLeads('amount')">Amount <span class="sort-arrow" id="sort-amount"></span></th>
               <th>Links</th>
             </tr>
           </thead>
@@ -1324,6 +1328,51 @@ function renderLeadTable(leads) {
   });
   $('lead-tbody').innerHTML = html;
   $('lead-count-label').textContent = '(' + leads.length + ')';
+}
+
+var _sortCol = '';
+var _sortDir = 'asc';
+
+function sortCostcoLeads(col) {
+  // Toggle direction if same column
+  if (_sortCol === col) {
+    _sortDir = _sortDir === 'asc' ? 'desc' : 'asc';
+  } else {
+    _sortCol = col;
+    _sortDir = 'asc';
+  }
+
+  // Clear all arrows
+  document.querySelectorAll('.sort-arrow').forEach(function(el) { el.className = 'sort-arrow'; });
+  var arrow = document.getElementById('sort-' + col);
+  if (arrow) arrow.className = 'sort-arrow ' + _sortDir;
+
+  // Sort the leads
+  var sortKey = {
+    'name': function(l) { return (l.lastName || '').toLowerCase(); },
+    'status': function(l) { return (l.status || '').toLowerCase(); },
+    'store': function(l) { return (l.costcoStore || '').toLowerCase(); },
+    'turf': function(l) { return (l.turfType || '').toLowerCase(); },
+    'stage': function(l) { return (l.opportunityStage || '').toLowerCase(); },
+    'amount': function(l) { return l.totalPrice || 0; },
+  };
+
+  var fn = sortKey[col];
+  if (!fn) return;
+
+  _costcoLeads.sort(function(a, b) {
+    var va = fn(a);
+    var vb = fn(b);
+    if (typeof va === 'number') {
+      return _sortDir === 'asc' ? va - vb : vb - va;
+    }
+    if (va < vb) return _sortDir === 'asc' ? -1 : 1;
+    if (va > vb) return _sortDir === 'asc' ? 1 : -1;
+    return 0;
+  });
+
+  renderLeadTable(_costcoLeads);
+  filterCostcoLeads(); // Re-apply any active filters
 }
 
 function filterCostcoLeads() {
