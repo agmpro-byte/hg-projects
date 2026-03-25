@@ -1009,8 +1009,8 @@ h1, h2, h3, h4, .section-hdr, .stat-label {
       <!-- KPI Row -->
       <div class="kpi-grid">
         <div class="kpi"><div class="kpi-label">Total Leads</div><div class="kpi-val" id="kpi-total">-</div></div>
-        <div class="kpi"><div class="kpi-label">Converted</div><div class="kpi-val green" id="kpi-converted">-</div></div>
-        <div class="kpi"><div class="kpi-label">Conversion</div><div class="kpi-val cyan" id="kpi-rate">-</div></div>
+        <div class="kpi"><div class="kpi-label">Sold</div><div class="kpi-val green" id="kpi-sold">-</div></div>
+        <div class="kpi"><div class="kpi-label">Close Rate</div><div class="kpi-val cyan" id="kpi-rate">-</div></div>
         <div class="kpi"><div class="kpi-label">Revenue</div><div class="kpi-val emerald" id="kpi-revenue">-</div></div>
       </div>
       <div class="kpi-grid">
@@ -1157,11 +1157,18 @@ var _costcoData = null;
 var _costcoLeads = [];
 
 var STATUS_COLORS = {
-  'Converted': { bg: '#22c55e', pill: 'converted' },
+  'Completed': { bg: '#22c55e', pill: 'converted' },
+  'Completed - Unpaid': { bg: '#f97316', pill: 'contacted' },
+  'Sold': { bg: '#10b981', pill: 'converted' },
+  'Job Scheduled': { bg: '#22d3ee', pill: 'qualified' },
+  'Follow Up': { bg: '#eab308', pill: 'contacted' },
   'Appointment Set': { bg: '#3b82f6', pill: 'new' },
-  'Working': { bg: '#eab308', pill: 'contacted' },
-  'Pre-Qualified Lead': { bg: '#a855f7', pill: 'qualified' },
+  'In Pipeline': { bg: '#6366f1', pill: 'qualified' },
+  'Working': { bg: '#8b5cf6', pill: 'qualified' },
   'On Hold': { bg: '#f97316', pill: 'contacted' },
+  'New Lead': { bg: '#3b82f6', pill: 'new' },
+  'Cancelled': { bg: '#ef4444', pill: 'lost' },
+  'Lost': { bg: '#ef4444', pill: 'lost' },
   'Not Interested': { bg: '#ef4444', pill: 'lost' }
 };
 
@@ -1188,8 +1195,8 @@ function loadCostcoData() {
 function renderCostcoDashboard() {
   var s = _costcoData.summary;
   $('kpi-total').textContent = fmt(s.totalLeads);
-  $('kpi-converted').textContent = fmt(s.converted);
-  $('kpi-rate').textContent = s.conversionRate + '%';
+  $('kpi-sold').textContent = fmt(s.sold);
+  $('kpi-rate').textContent = s.soldRate + '%';
   $('kpi-revenue').textContent = fmtD(s.totalRevenue);
   $('kpi-avg').textContent = fmtD(s.avgDealSize);
   $('kpi-sqft').textContent = fmt(s.totalSqft);
@@ -1240,7 +1247,7 @@ function renderCostcoDashboard() {
   var sortedStores = Object.keys(stores).sort(function(a, b) { return stores[b].revenue - stores[a].revenue; });
   sortedStores.forEach(function(name) {
     var st = stores[name];
-    var rate = st.leads > 0 ? Math.round(st.converted / st.leads * 100) : 0;
+    var rate = st.leads > 0 ? Math.round(st.sold / st.leads * 100) : 0;
     var rev = st.revenue >= 1000 ? '$' + Math.round(st.revenue / 1000) + 'k' : '$' + Math.round(st.revenue);
     storeHtml += '<div class="store-perf"><div class="store-perf-name">' + name + '</div>'
       + '<div class="store-perf-row">'
