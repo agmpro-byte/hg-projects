@@ -303,10 +303,328 @@ h1, h2, h3, h4, .section-hdr, .stat-label {
 .ql h4 { font-size: 0.8125rem; font-weight: 600; color: #fff; }
 .ql p { font-size: 0.6875rem; color: #444; margin-top: 1px; }
 
+/* ── COSTCO DASHBOARD ── */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.kpi {
+  background: #0a0a0a;
+  border: 1px solid #1a1a1a;
+  border-radius: 8px;
+  padding: 12px 10px;
+  text-align: center;
+}
+
+.kpi-label {
+  font-size: 0.5625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #444;
+  margin-bottom: 2px;
+}
+
+.kpi-val {
+  font-family: 'Sora', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.kpi-val.green { color: #22c55e; }
+.kpi-val.cyan { color: #22d3ee; }
+.kpi-val.yellow { color: #eab308; }
+.kpi-val.emerald { color: #10b981; }
+
+.funnel-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.funnel-label {
+  font-size: 0.6875rem;
+  color: #666;
+  width: 80px;
+  flex-shrink: 0;
+}
+
+.funnel-bar-bg {
+  flex: 1;
+  height: 18px;
+  background: #111;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.funnel-bar {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s;
+}
+
+.funnel-count {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: #fff;
+  width: 24px;
+  text-align: right;
+}
+
+.lead-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+
+.lead-table th {
+  font-size: 0.5625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #444;
+  text-align: left;
+  padding: 6px 8px;
+  border-bottom: 1px solid #1a1a1a;
+}
+
+.lead-table td {
+  font-size: 0.75rem;
+  padding: 8px 8px;
+  border-bottom: 1px solid #0f0f0f;
+  color: #ccc;
+}
+
+.lead-table tr:hover td { background: #0a0a0a; }
+
+.lead-table .name { color: #fff; font-weight: 600; }
+.lead-table .dim { color: #555; }
+.lead-table .turf { color: #22d3ee; }
+.lead-table .amount { color: #fff; font-weight: 600; text-align: right; }
+
+.lead-links {
+  display: flex;
+  gap: 4px;
+}
+
+.lead-link {
+  font-size: 0.5625rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 3px;
+  text-decoration: none;
+  letter-spacing: 0.03em;
+}
+
+.lead-link.sf { background: rgba(59,130,246,0.15); color: #60a5fa; }
+.lead-link.sf:hover { background: rgba(59,130,246,0.25); }
+.lead-link.agm { background: rgba(34,197,94,0.15); color: #4ade80; }
+.lead-link.agm:hover { background: rgba(34,197,94,0.25); }
+
+.status-pill {
+  font-size: 0.5rem;
+  font-weight: 700;
+  font-family: 'Sora', sans-serif;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 1px 6px;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+
+.status-pill.new { background: rgba(59,130,246,0.15); color: #60a5fa; }
+.status-pill.contacted { background: rgba(234,179,8,0.15); color: #fbbf24; }
+.status-pill.qualified { background: rgba(168,85,247,0.15); color: #c084fc; }
+.status-pill.converted { background: rgba(34,197,94,0.15); color: #4ade80; }
+.status-pill.lost { background: rgba(239,68,68,0.15); color: #f87171; }
+
+.store-card {
+  background: #0a0a0a;
+  border: 1px solid #1a1a1a;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 8px;
+}
+
+.store-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.store-name {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.store-stats {
+  display: flex;
+  gap: 16px;
+  font-size: 0.6875rem;
+}
+
+.store-leads-wrap {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid #151515;
+  display: none;
+}
+
+.store-card.open .store-leads-wrap { display: block; }
+
+.store-perf-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 8px;
+}
+
+.store-perf {
+  background: #0a0a0a;
+  border: 1px solid #1a1a1a;
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+}
+
+.store-perf-name {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 6px;
+}
+
+.store-perf-row {
+  display: flex;
+  justify-content: space-around;
+}
+
+.store-perf-item {
+  text-align: center;
+}
+
+.store-perf-val {
+  font-family: 'Sora', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.store-perf-sub {
+  font-size: 0.5rem;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.filter-bar label {
+  font-size: 0.625rem;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+}
+
+.filter-bar select {
+  background: #0a0a0a;
+  border: 1px solid #1a1a1a;
+  color: #e5e7eb;
+  font-size: 0.75rem;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-family: 'Inter', sans-serif;
+}
+
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.col-card {
+  background: #0a0a0a;
+  border: 1px solid #1a1a1a;
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.col-card h4 {
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+.prototype-note {
+  background: rgba(59,130,246,0.08);
+  border: 1px solid rgba(59,130,246,0.2);
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-size: 0.75rem;
+  color: #60a5fa;
+  margin-top: 20px;
+}
+
+/* ── HG CALENDAR EMBED ── */
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.calendar-header h3 {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.calendar-header a {
+  font-size: 0.75rem;
+  color: #22d3ee;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.calendar-header a:hover { text-decoration: underline; }
+
+.calendar-frame {
+  border: 1px solid #1a1a1a;
+  border-radius: 8px;
+  overflow: hidden;
+  height: 75vh;
+  min-height: 500px;
+}
+
+.calendar-frame iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
 /* ── RESPONSIVE ── */
 @media (max-width: 500px) {
   .stats { grid-template-columns: repeat(2, 1fr); }
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .two-col { grid-template-columns: 1fr; }
   .tab { padding: 8px 14px; font-size: 0.6875rem; }
+  .store-perf-grid { grid-template-columns: 1fr 1fr; }
 }
 </style>
 </head>
@@ -319,6 +637,8 @@ h1, h2, h3, h4, .section-hdr, .stat-label {
     <button class="tab active" data-panel="dashboard">Dashboard</button>
     <button class="tab" data-panel="hg">HG Projects</button>
     <button class="tab" data-panel="ate">ATE Projects</button>
+    <button class="tab" data-panel="costco">Costco</button>
+    <button class="tab" data-panel="hg-calendar">HG Calendar</button>
     <button class="tab" data-panel="links">Links</button>
   </div>
 </div>
@@ -681,6 +1001,273 @@ h1, h2, h3, h4, .section-hdr, .stat-label {
     </div>
   </div>
 
+  <!-- ════ COSTCO ════ -->
+  <div id="panel-costco" class="panel">
+
+    <!-- KPI Row -->
+    <div class="kpi-grid">
+      <div class="kpi"><div class="kpi-label">Total Leads</div><div class="kpi-val" id="kpi-total">12</div></div>
+      <div class="kpi"><div class="kpi-label">Converted</div><div class="kpi-val green" id="kpi-converted">4</div></div>
+      <div class="kpi"><div class="kpi-label">Conversion</div><div class="kpi-val cyan" id="kpi-rate">33%</div></div>
+      <div class="kpi"><div class="kpi-label">Revenue</div><div class="kpi-val emerald" id="kpi-revenue">$65,550</div></div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi"><div class="kpi-label">Avg Deal</div><div class="kpi-val" id="kpi-avg">$16,388</div></div>
+      <div class="kpi"><div class="kpi-label">Total Sqft</div><div class="kpi-val" id="kpi-sqft">4,020</div></div>
+      <div class="kpi"><div class="kpi-label">Avg $/sqft</div><div class="kpi-val cyan" id="kpi-ppsf">$16.31</div></div>
+      <div class="kpi"><div class="kpi-label">Pipeline</div><div class="kpi-val yellow" id="kpi-pipeline">$40,700</div></div>
+    </div>
+
+    <!-- Status + Turf Type side-by-side -->
+    <div class="two-col">
+      <div class="col-card">
+        <h4>Lead Status</h4>
+        <div id="status-funnel">
+          <div class="funnel-row"><span class="funnel-label">New</span><div class="funnel-bar-bg"><div class="funnel-bar" style="width:16.7%;background:#3b82f6"></div></div><span class="funnel-count">2</span></div>
+          <div class="funnel-row"><span class="funnel-label">Contacted</span><div class="funnel-bar-bg"><div class="funnel-bar" style="width:25%;background:#eab308"></div></div><span class="funnel-count">3</span></div>
+          <div class="funnel-row"><span class="funnel-label">Qualified</span><div class="funnel-bar-bg"><div class="funnel-bar" style="width:16.7%;background:#a855f7"></div></div><span class="funnel-count">2</span></div>
+          <div class="funnel-row"><span class="funnel-label">Converted</span><div class="funnel-bar-bg"><div class="funnel-bar" style="width:33.3%;background:#22c55e"></div></div><span class="funnel-count">4</span></div>
+          <div class="funnel-row"><span class="funnel-label">Closed Lost</span><div class="funnel-bar-bg"><div class="funnel-bar" style="width:8.3%;background:#ef4444"></div></div><span class="funnel-count">1</span></div>
+        </div>
+      </div>
+      <div class="col-card">
+        <h4>Turf Type Breakdown</h4>
+        <div>
+          <div class="funnel-row"><span class="funnel-label">Artificial Grass</span><div class="funnel-bar-bg"><div class="funnel-bar" style="width:58%;background:#10b981"></div></div><span class="funnel-count">7</span></div>
+          <div class="funnel-row"><span class="funnel-label">Pet Turf</span><div class="funnel-bar-bg"><div class="funnel-bar" style="width:25%;background:#10b981"></div></div><span class="funnel-count">3</span></div>
+          <div class="funnel-row"><span class="funnel-label">Putting Green</span><div class="funnel-bar-bg"><div class="funnel-bar" style="width:16.7%;background:#10b981"></div></div><span class="funnel-count">2</span></div>
+          <div class="funnel-row"><span class="funnel-label">Playground</span><div class="funnel-bar-bg"><div class="funnel-bar" style="width:8.3%;background:#10b981"></div></div><span class="funnel-count">1</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-bar">
+      <label>Status:</label>
+      <select id="costco-status-filter" onchange="filterCostcoLeads()">
+        <option value="all">All</option>
+        <option value="New">New</option>
+        <option value="Contacted">Contacted</option>
+        <option value="Qualified">Qualified</option>
+        <option value="Converted">Converted</option>
+        <option value="Closed Lost">Closed Lost</option>
+      </select>
+      <label>Turf Type:</label>
+      <select id="costco-turf-filter" onchange="filterCostcoLeads()">
+        <option value="all">All</option>
+        <option value="Artificial Grass">Artificial Grass</option>
+        <option value="Pet Turf">Pet Turf</option>
+        <option value="Putting Green">Putting Green</option>
+        <option value="Playground Turf">Playground Turf</option>
+      </select>
+    </div>
+
+    <!-- Store Performance -->
+    <div class="section-hdr">Store Performance</div>
+    <div class="store-perf-grid" style="margin-bottom:20px">
+      <div class="store-perf">
+        <div class="store-perf-name">Pleasanton</div>
+        <div class="store-perf-row">
+          <div class="store-perf-item"><div class="store-perf-val">3</div><div class="store-perf-sub">leads</div></div>
+          <div class="store-perf-item"><div class="store-perf-val green">33%</div><div class="store-perf-sub">close</div></div>
+          <div class="store-perf-item"><div class="store-perf-val emerald">$12k</div><div class="store-perf-sub">rev</div></div>
+        </div>
+      </div>
+      <div class="store-perf">
+        <div class="store-perf-name">San Jose</div>
+        <div class="store-perf-row">
+          <div class="store-perf-item"><div class="store-perf-val">2</div><div class="store-perf-sub">leads</div></div>
+          <div class="store-perf-item"><div class="store-perf-val green">50%</div><div class="store-perf-sub">close</div></div>
+          <div class="store-perf-item"><div class="store-perf-val emerald">$22k</div><div class="store-perf-sub">rev</div></div>
+        </div>
+      </div>
+      <div class="store-perf">
+        <div class="store-perf-name">Vallejo</div>
+        <div class="store-perf-row">
+          <div class="store-perf-item"><div class="store-perf-val">2</div><div class="store-perf-sub">leads</div></div>
+          <div class="store-perf-item"><div class="store-perf-val green">0%</div><div class="store-perf-sub">close</div></div>
+          <div class="store-perf-item"><div class="store-perf-val emerald">$0</div><div class="store-perf-sub">rev</div></div>
+        </div>
+      </div>
+      <div class="store-perf">
+        <div class="store-perf-name">Fremont</div>
+        <div class="store-perf-row">
+          <div class="store-perf-item"><div class="store-perf-val">1</div><div class="store-perf-sub">leads</div></div>
+          <div class="store-perf-item"><div class="store-perf-val green">100%</div><div class="store-perf-sub">close</div></div>
+          <div class="store-perf-item"><div class="store-perf-val emerald">$9k</div><div class="store-perf-sub">rev</div></div>
+        </div>
+      </div>
+      <div class="store-perf">
+        <div class="store-perf-name">Oakland</div>
+        <div class="store-perf-row">
+          <div class="store-perf-item"><div class="store-perf-val">2</div><div class="store-perf-sub">leads</div></div>
+          <div class="store-perf-item"><div class="store-perf-val green">50%</div><div class="store-perf-sub">close</div></div>
+          <div class="store-perf-item"><div class="store-perf-val emerald">$11k</div><div class="store-perf-sub">rev</div></div>
+        </div>
+      </div>
+      <div class="store-perf">
+        <div class="store-perf-name">Redwood City</div>
+        <div class="store-perf-row">
+          <div class="store-perf-item"><div class="store-perf-val">2</div><div class="store-perf-sub">leads</div></div>
+          <div class="store-perf-item"><div class="store-perf-val green">0%</div><div class="store-perf-sub">close</div></div>
+          <div class="store-perf-item"><div class="store-perf-val emerald">$0</div><div class="store-perf-sub">rev</div></div>
+        </div>
+      </div>
+      <div class="store-perf">
+        <div class="store-perf-name">Concord</div>
+        <div class="store-perf-row">
+          <div class="store-perf-item"><div class="store-perf-val">1</div><div class="store-perf-sub">leads</div></div>
+          <div class="store-perf-item"><div class="store-perf-val green">100%</div><div class="store-perf-sub">close</div></div>
+          <div class="store-perf-item"><div class="store-perf-val emerald">$15k</div><div class="store-perf-sub">rev</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lead Table -->
+    <div class="section-hdr">All Leads</div>
+    <div style="overflow-x:auto">
+    <table class="lead-table" id="costco-lead-table">
+      <thead>
+        <tr>
+          <th>Lead</th>
+          <th>Status</th>
+          <th>Store</th>
+          <th>Turf Type</th>
+          <th>Stage</th>
+          <th style="text-align:right">Amount</th>
+          <th>Links</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-status="Converted" data-turf="Artificial Grass">
+          <td><span class="name">Maria Gonzalez</span><br><span class="dim">Pleasanton &middot; Mar 1</span></td>
+          <td><span class="status-pill converted">Converted</span></td>
+          <td>Pleasanton</td>
+          <td class="turf">Artificial Grass</td>
+          <td style="color:#22c55e">Completed - Paid</td>
+          <td class="amount">$12,450</td>
+          <td><div class="lead-links"><a class="lead-link sf" href="https://d37000000pbiqeac.my.salesforce.com/lightning/r/Lead/00QRb000008aXYZ/view" target="_blank">SF</a><a class="lead-link agm" href="https://app.agmpro.com/v2/location/tNwDUPgJ4GFjCD81OGVA/contacts" target="_blank">AGM</a></div></td>
+        </tr>
+        <tr data-status="Converted" data-turf="Pet Turf">
+          <td><span class="name">James Park</span><br><span class="dim">Fremont &middot; Mar 3</span></td>
+          <td><span class="status-pill converted">Converted</span></td>
+          <td>Fremont</td>
+          <td class="turf">Pet Turf</td>
+          <td style="color:#22d3ee">Job Scheduled</td>
+          <td class="amount">$8,900</td>
+          <td><div class="lead-links"><a class="lead-link sf" href="https://d37000000pbiqeac.my.salesforce.com/lightning/r/Lead/00QRb000008bXYZ/view" target="_blank">SF</a><a class="lead-link agm" href="https://app.agmpro.com/v2/location/tNwDUPgJ4GFjCD81OGVA/contacts" target="_blank">AGM</a></div></td>
+        </tr>
+        <tr data-status="Qualified" data-turf="Putting Green">
+          <td><span class="name">Linda Chen</span><br><span class="dim">San Jose &middot; Mar 5</span></td>
+          <td><span class="status-pill qualified">Qualified</span></td>
+          <td>San Jose</td>
+          <td class="turf">Putting Green</td>
+          <td style="color:#10b981">Sales Closed Won</td>
+          <td class="amount">$18,200</td>
+          <td><div class="lead-links"><a class="lead-link sf" href="https://d37000000pbiqeac.my.salesforce.com/lightning/r/Lead/00QRb000008cXYZ/view" target="_blank">SF</a><a class="lead-link agm" href="https://app.agmpro.com/v2/location/tNwDUPgJ4GFjCD81OGVA/contacts" target="_blank">AGM</a></div></td>
+        </tr>
+        <tr data-status="Contacted" data-turf="Artificial Grass">
+          <td><span class="name">Robert Smith</span><br><span class="dim">Vallejo &middot; Mar 8</span></td>
+          <td><span class="status-pill contacted">Contacted</span></td>
+          <td>Vallejo</td>
+          <td class="turf">Artificial Grass</td>
+          <td class="dim">&mdash;</td>
+          <td class="amount dim">&mdash;</td>
+          <td><div class="lead-links"><a class="lead-link sf" href="https://d37000000pbiqeac.my.salesforce.com/lightning/r/Lead/00QRb000008dXYZ/view" target="_blank">SF</a><a class="lead-link agm" href="https://app.agmpro.com/v2/location/tNwDUPgJ4GFjCD81OGVA/contacts" target="_blank">AGM</a></div></td>
+        </tr>
+        <tr data-status="Converted" data-turf="Artificial Grass">
+          <td><span class="name">Sarah Johnson</span><br><span class="dim">Concord &middot; Mar 10</span></td>
+          <td><span class="status-pill converted">Converted</span></td>
+          <td>Concord</td>
+          <td class="turf">Artificial Grass</td>
+          <td style="color:#22c55e">Completed - Paid</td>
+          <td class="amount">$14,800</td>
+          <td><div class="lead-links"><a class="lead-link sf" href="https://d37000000pbiqeac.my.salesforce.com/lightning/r/Lead/00QRb000008eXYZ/view" target="_blank">SF</a><a class="lead-link agm" href="https://app.agmpro.com/v2/location/tNwDUPgJ4GFjCD81OGVA/contacts" target="_blank">AGM</a></div></td>
+        </tr>
+        <tr data-status="New" data-turf="Pet Turf">
+          <td><span class="name">David Kim</span><br><span class="dim">Redwood City &middot; Mar 12</span></td>
+          <td><span class="status-pill new">New</span></td>
+          <td>Redwood City</td>
+          <td class="turf">Pet Turf</td>
+          <td class="dim">&mdash;</td>
+          <td class="amount dim">&mdash;</td>
+          <td><div class="lead-links"><a class="lead-link sf" href="https://d37000000pbiqeac.my.salesforce.com/lightning/r/Lead/00QRb000008fXYZ/view" target="_blank">SF</a><a class="lead-link agm" href="https://app.agmpro.com/v2/location/tNwDUPgJ4GFjCD81OGVA/contacts" target="_blank">AGM</a></div></td>
+        </tr>
+        <tr data-status="Converted" data-turf="Artificial Grass">
+          <td><span class="name">Patricia Rivera</span><br><span class="dim">Oakland &middot; Mar 14</span></td>
+          <td><span class="status-pill converted">Converted</span></td>
+          <td>Oakland</td>
+          <td class="turf">Artificial Grass</td>
+          <td style="color:#f97316">Complete - Unpaid</td>
+          <td class="amount">$11,200</td>
+          <td><div class="lead-links"><a class="lead-link sf" href="https://d37000000pbiqeac.my.salesforce.com/lightning/r/Lead/00QRb000008gXYZ/view" target="_blank">SF</a><a class="lead-link agm" href="https://app.agmpro.com/v2/location/tNwDUPgJ4GFjCD81OGVA/contacts" target="_blank">AGM</a></div></td>
+        </tr>
+        <tr data-status="Qualified" data-turf="Playground Turf">
+          <td><span class="name">Michael Thompson</span><br><span class="dim">Santa Clara &middot; Mar 16</span></td>
+          <td><span class="status-pill qualified">Qualified</span></td>
+          <td>San Jose</td>
+          <td class="turf">Playground Turf</td>
+          <td style="color:#10b981">Sales Closed Won</td>
+          <td class="amount">$22,500</td>
+          <td><div class="lead-links"><a class="lead-link sf" href="https://d37000000pbiqeac.my.salesforce.com/lightning/r/Lead/00QRb000008hXYZ/view" target="_blank">SF</a><a class="lead-link agm" href="https://app.agmpro.com/v2/location/tNwDUPgJ4GFjCD81OGVA/contacts" target="_blank">AGM</a></div></td>
+        </tr>
+        <tr data-status="Contacted" data-turf="Putting Green">
+          <td><span class="name">Jennifer Lee</span><br><span class="dim">Dublin &middot; Mar 18</span></td>
+          <td><span class="status-pill contacted">Contacted</span></td>
+          <td>Pleasanton</td>
+          <td class="turf">Putting Green</td>
+          <td class="dim">&mdash;</td>
+          <td class="amount dim">&mdash;</td>
+          <td><div class="lead-links"><a class="lead-link sf" href="https://d37000000pbiqeac.my.salesforce.com/lightning/r/Lead/00QRb000008iXYZ/view" target="_blank">SF</a><a class="lead-link agm" href="https://app.agmpro.com/v2/location/tNwDUPgJ4GFjCD81OGVA/contacts" target="_blank">AGM</a></div></td>
+        </tr>
+        <tr data-status="Closed Lost" data-turf="Artificial Grass">
+          <td><span class="name">William Brown</span><br><span class="dim">Napa &middot; Mar 20</span></td>
+          <td><span class="status-pill lost">Closed Lost</span></td>
+          <td>Vallejo</td>
+          <td class="turf">Artificial Grass</td>
+          <td class="dim">&mdash;</td>
+          <td class="amount dim">&mdash;</td>
+          <td><div class="lead-links"><a class="lead-link sf" href="https://d37000000pbiqeac.my.salesforce.com/lightning/r/Lead/00QRb000008jXYZ/view" target="_blank">SF</a><a class="lead-link agm" href="https://app.agmpro.com/v2/location/tNwDUPgJ4GFjCD81OGVA/contacts" target="_blank">AGM</a></div></td>
+        </tr>
+        <tr data-status="New" data-turf="Artificial Grass">
+          <td><span class="name">Emily Davis</span><br><span class="dim">Berkeley &middot; Mar 22</span></td>
+          <td><span class="status-pill new">New</span></td>
+          <td>Oakland</td>
+          <td class="turf">Artificial Grass</td>
+          <td class="dim">&mdash;</td>
+          <td class="amount dim">&mdash;</td>
+          <td><div class="lead-links"><a class="lead-link sf" href="https://d37000000pbiqeac.my.salesforce.com/lightning/r/Lead/00QRb000008kXYZ/view" target="_blank">SF</a><a class="lead-link agm" href="https://app.agmpro.com/v2/location/tNwDUPgJ4GFjCD81OGVA/contacts" target="_blank">AGM</a></div></td>
+        </tr>
+        <tr data-status="Contacted" data-turf="Pet Turf">
+          <td><span class="name">Thomas Wilson</span><br><span class="dim">Palo Alto &middot; Mar 24</span></td>
+          <td><span class="status-pill contacted">Contacted</span></td>
+          <td>Redwood City</td>
+          <td class="turf">Pet Turf</td>
+          <td class="dim">&mdash;</td>
+          <td class="amount dim">&mdash;</td>
+          <td><div class="lead-links"><a class="lead-link sf" href="https://d37000000pbiqeac.my.salesforce.com/lightning/r/Lead/00QRb000008lXYZ/view" target="_blank">SF</a><a class="lead-link agm" href="https://app.agmpro.com/v2/location/tNwDUPgJ4GFjCD81OGVA/contacts" target="_blank">AGM</a></div></td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+
+    <div class="prototype-note">
+      <strong>Prototype:</strong> Using mock data. Production version will query Salesforce via SOQL and map AGM contact IDs from the intake pipeline's SQLite tracker. Each lead row links to both SF (blue) and AGM (green) records.
+    </div>
+  </div>
+
+  <!-- ════ HG CALENDAR ════ -->
+  <div id="panel-hg-calendar" class="panel">
+    <div class="calendar-header">
+      <h3>HG Calendar &mdash; Salesforce + AGM Events</h3>
+      <a href="https://troy-byte.github.io/hg-calendar/" target="_blank">Open Full Screen &rarr;</a>
+    </div>
+    <div class="calendar-frame">
+      <iframe src="https://troy-byte.github.io/hg-calendar/" title="HG Calendar" allow="fullscreen"></iframe>
+    </div>
+  </div>
+
   <!-- ════ QUICK LINKS ════ -->
   <div id="panel-links" class="panel">
     <div class="section-hdr">Heavenly Greens</div>
@@ -747,6 +1334,33 @@ document.querySelectorAll('.tab').forEach(btn => {
     document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
     btn.classList.add('active');
     document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+    // Widen wrap for Costco & Calendar panels
+    const wrap = document.querySelector('.wrap');
+    if (btn.dataset.panel === 'costco' || btn.dataset.panel === 'hg-calendar') {
+      wrap.style.maxWidth = '960px';
+    } else {
+      wrap.style.maxWidth = '640px';
+    }
+  });
+});
+
+// Costco lead table filter
+function filterCostcoLeads() {
+  var status = document.getElementById('costco-status-filter').value;
+  var turf = document.getElementById('costco-turf-filter').value;
+  var rows = document.querySelectorAll('#costco-lead-table tbody tr');
+  rows.forEach(function(row) {
+    var rowStatus = row.getAttribute('data-status');
+    var rowTurf = row.getAttribute('data-turf');
+    var show = (status === 'all' || rowStatus === status) && (turf === 'all' || rowTurf === turf);
+    row.style.display = show ? '' : 'none';
+  });
+}
+
+// Store card toggle
+document.querySelectorAll('.store-header').forEach(function(hdr) {
+  hdr.addEventListener('click', function() {
+    hdr.closest('.store-card').classList.toggle('open');
   });
 });
 </script>
