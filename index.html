@@ -1093,9 +1093,9 @@ h1, h2, h3, h4, .section-hdr, .stat-label {
 
       <!-- Appointment Activity (Today / This Week / This Month / Ran This Month) -->
       <div class="kpi-grid" style="grid-template-columns: repeat(4, 1fr)">
-        <div class="kpi"><div class="kpi-label">Appts Set Today</div><div class="kpi-val" id="kpi-appts-today" style="color:#a78bfa">-</div></div>
-        <div class="kpi"><div class="kpi-label">Appts Set This Week</div><div class="kpi-val" id="kpi-appts-week" style="color:#8b5cf6">-</div></div>
-        <div class="kpi"><div class="kpi-label">Appts Set This Month</div><div class="kpi-val" id="kpi-appts-month" style="color:#7c3aed">-</div></div>
+        <div class="kpi"><div class="kpi-label">Appts Today</div><div class="kpi-val" id="kpi-appts-today" style="color:#a78bfa">-</div></div>
+        <div class="kpi"><div class="kpi-label">Appts This Week</div><div class="kpi-val" id="kpi-appts-week" style="color:#8b5cf6">-</div></div>
+        <div class="kpi"><div class="kpi-label">Appts This Month</div><div class="kpi-val" id="kpi-appts-month" style="color:#7c3aed">-</div></div>
         <div class="kpi"><div class="kpi-label">Appts Ran This Month</div><div class="kpi-val" id="kpi-appts-ran-month" style="color:#f59e0b">-</div></div>
       </div>
 
@@ -1340,8 +1340,8 @@ function renderCostcoDashboard() {
       if (apptDate >= weekStr) apptsWeek++;
       if (apptDate.slice(0, 7) === monthStr) apptsMonth++;
     }
-    // Appointments ran this month: status indicates ran + appointment date in current month
-    if (apptRanStatuses[l.status] && apptDate && apptDate.slice(0, 7) === monthStr) {
+    // Appointments ran this month: appointment date in current month and before today
+    if (apptDate && apptDate < todayStr && apptDate.slice(0, 7) === monthStr) {
       apptsRanMonth++;
     }
   });

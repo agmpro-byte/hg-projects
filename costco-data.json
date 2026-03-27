@@ -1,11 +1,11 @@
 {
-  "generated": "2026-03-27T14:33:05.822964+00:00",
+  "generated": "2026-03-27T14:42:58.955618+00:00",
   "summary": {
     "totalLeads": 120,
-    "appointmentsBooked": 95,
-    "appointmentsRan": 36,
+    "appointmentsBooked": 97,
+    "appointmentsRan": 89,
     "sold": 18,
-    "soldRate": 50.0,
+    "soldRate": 20.2,
     "totalRevenue": 149029.0,
     "avgDealSize": 8279,
     "totalSqft": 8138.0,
