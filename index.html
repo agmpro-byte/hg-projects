@@ -1323,7 +1323,7 @@ function renderCostcoDashboard() {
   // Statuses that mean appointment was set (booked or beyond)
   var apptSetStatuses = {'Appointment Booked':1, 'Appointment Ran':1, 'Proposal Out':1, 'Contract Approved':1, 'Deposit Sent':1, 'Deposit Received':1, 'Installation Started':1, 'Installed':1, 'Installed - Unpaid':1, 'Paid in Full':1, 'Job Scheduled':1, 'No Show':1};
   // Statuses that mean appointment actually ran
-  var apptRanStatuses = {'Appointment Ran':1, 'Proposal Out':1, 'Contract Approved':1, 'Deposit Sent':1, 'Deposit Received':1, 'Installation Started':1, 'Installed':1, 'Installed - Unpaid':1, 'Paid in Full':1, 'Job Scheduled':1};
+  var apptRanStatuses = {'Appointment Ran':1, 'Proposal Out':1, 'Follow Up':1, 'Contract Approved':1, 'Deposit Sent':1, 'Deposit Received':1, 'Installation Started':1, 'Installed':1, 'Installed - Unpaid':1, 'Paid in Full':1, 'Job Scheduled':1};
 
   var leadsToday = 0, leadsWeek = 0, leadsMonth = 0;
   var apptsToday = 0, apptsWeek = 0, apptsMonth = 0, apptsRanMonth = 0;
@@ -1340,9 +1340,9 @@ function renderCostcoDashboard() {
       if (apptDate >= weekStr) apptsWeek++;
       if (apptDate.slice(0, 7) === monthStr) apptsMonth++;
     }
-    // Appointments ran: appointment date is today or in the past (Anthony ran it)
-    if (apptDate && apptDate <= todayStr) {
-      if (apptDate.slice(0, 7) === monthStr) apptsRanMonth++;
+    // Appointments ran this month: status indicates ran + appointment date in current month
+    if (apptRanStatuses[l.status] && apptDate && apptDate.slice(0, 7) === monthStr) {
+      apptsRanMonth++;
     }
   });
   $('kpi-leads-today').textContent = fmt(leadsToday);
@@ -1364,14 +1364,14 @@ function renderCostcoDashboard() {
 
   $('kpi-total').textContent = fmt(s.totalLeads);
   $('kpi-booked').textContent = fmt(s.appointmentsBooked);
-  $('kpi-ran').textContent = fmt(s.appointmentsRanConfirmed);
-  $('kpi-ran-note').textContent = 'AGM confirmed';
+  $('kpi-ran').textContent = fmt(s.appointmentsRan);
+  $('kpi-ran-note').textContent = '';
   $('kpi-sold').textContent = fmt(s.sold);
   $('kpi-revenue').textContent = fmtD(s.totalRevenue);
   $('kpi-rate').textContent = s.soldRate + '%';
   $('kpi-sqft').textContent = fmt(s.totalSqft);
   $('kpi-ppsf').textContent = '$' + (s.avgPricePerSqft || 0).toFixed(2);
-  $('data-gap-note').innerHTML = '<strong>' + fmt(s.appointmentsRanConfirmed) + '</strong> appointments confirmed ran via AGM. <strong>' + fmt(s.appointmentsUnconfirmed) + '</strong> additional at "Booked" in Salesforce — appointment outcome unconfirmed (pre-pipeline leads).';
+  $('data-gap-note').innerHTML = '<strong>' + fmt(s.appointmentsRan) + '</strong> appointments ran. <strong>' + fmt(s.sold) + '</strong> closed (' + s.soldRate + '% close rate). <strong>' + fmt(s.appointmentsBooked - s.appointmentsRan) + '</strong> booked but not yet ran.';
 
   // Status funnel
   var statusHtml = '';
