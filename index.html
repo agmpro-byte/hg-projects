@@ -1285,7 +1285,16 @@ h1, h2, h3, h4, .section-hdr, .stat-label {
   <div id="panel-hg-sales" class="panel">
     <div id="hg-sales-loading" style="text-align:center;padding:40px;color:#555">Loading HG Sales data...</div>
     <div id="hg-sales-content" style="display:none">
-      <div id="hg-data-freshness" style="text-align:right;font-size:0.65rem;color:#555;padding:0 8px 4px 0"></div>
+
+      <!-- Year Selector -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div id="hg-year-tabs" style="display:flex;gap:0">
+          <button class="tab active" data-year="2026" onclick="switchHGYear('2026')" style="padding:8px 18px;font-size:0.75rem">2026</button>
+          <button class="tab" data-year="2025" onclick="switchHGYear('2025')" style="padding:8px 18px;font-size:0.75rem">2025</button>
+          <button class="tab" data-year="2024" onclick="switchHGYear('2024')" style="padding:8px 18px;font-size:0.75rem">2024</button>
+        </div>
+        <div id="hg-data-freshness" style="font-size:0.65rem;color:#555"></div>
+      </div>
 
       <!-- Top KPIs -->
       <div class="kpi-grid">
@@ -1522,8 +1531,12 @@ document.querySelectorAll('.tab').forEach(btn => {
 });
 
 // ── HG Sales Dashboard — Live Data ──
-var _hgSalesData = null;
-var _hgSalesOpps = [];
+var _hgSalesRaw = null;       // Full dataset from JSON
+var _hgSalesData = null;      // Computed stats for current year
+var _hgSalesOpps = [];        // Filtered opps for current year
+var _hgSalesAllOpps = [];     // All opps from JSON
+var _hgSalesAllLeadStats = null;
+var _hgActiveYear = '2026';
 var _hgSortCol = '';
 var _hgSortDir = 'asc';
 
@@ -1539,6 +1552,17 @@ var HG_STAGE_COLORS = {
   'Cancelled Contract': '#ef4444',
 };
 
+var HG_WON_STAGES = {
+  'Sales Closed Won - Approved':1, 'Sales Closed Won - Needs Approval':1,
+  'Job Scheduled':1, 'Complete - Unpaid':1, 'Completed - Paid':1,
+  'Completed - Paid/Retention Owed':1, 'Completed- Paid':1,
+  'Turf Replacement - Completed':1
+};
+var HG_LOST_STAGES = {
+  'Closed Lost':1, 'Cancelled Contract':1, 'Not Sold - Needs Follow Up':1,
+  'Canceled Appointment':1, 'No Show':1, 'Refuse to Pay':1
+};
+
 function loadHGSalesData() {
   var url = 'hg-sales-data.json?' + Date.now();
   fetch(url)
@@ -1548,43 +1572,121 @@ function loadHGSalesData() {
     })
     .then(function(data) {
       window._hgSalesLoaded = true;
-      _hgSalesData = data;
-      _hgSalesOpps = data.opportunities || [];
-      renderHGSalesDashboard();
+      _hgSalesRaw = data;
+      _hgSalesAllOpps = data.opportunities || [];
+      _hgSalesAllLeadStats = data.leadStatusCounts || {};
+
+      // Show freshness
+      if (data.generated) {
+        var now = new Date();
+        var gen = new Date(data.generated);
+        var ago = Math.round((now - gen) / 60000);
+        var agoText = ago < 1 ? 'just now' : ago < 60 ? ago + 'm ago' : Math.round(ago / 60) + 'h ' + (ago % 60) + 'm ago';
+        $('hg-data-freshness').textContent = 'Data updated ' + agoText;
+        $('hg-data-freshness').style.color = ago > 60 ? '#f59e0b' : '#4ade80';
+      }
+
+      switchHGYear(_hgActiveYear);
+
+      $('hg-sales-loading').style.display = 'none';
+      $('hg-sales-content').style.display = 'block';
     })
     .catch(function(err) {
       $('hg-sales-loading').textContent = 'Failed to load data: ' + err.message;
     });
 }
 
-function renderHGSalesDashboard() {
-  var s = _hgSalesData.summary;
-  var now = new Date();
+function switchHGYear(year) {
+  _hgActiveYear = year;
+  // Update year tab styling
+  document.querySelectorAll('#hg-year-tabs .tab').forEach(function(btn) {
+    btn.classList.toggle('active', btn.getAttribute('data-year') === year);
+  });
+  // Reset sort
+  _hgSortCol = '';
+  _hgSortDir = 'asc';
+  document.querySelectorAll('#hg-opp-table .sort-arrow').forEach(function(el) { el.className = 'sort-arrow'; });
 
-  // Data freshness
-  if (_hgSalesData.generated) {
-    var gen = new Date(_hgSalesData.generated);
-    var ago = Math.round((now - gen) / 60000);
-    var agoText = ago < 1 ? 'just now' : ago < 60 ? ago + 'm ago' : Math.round(ago / 60) + 'h ' + (ago % 60) + 'm ago';
-    $('hg-data-freshness').textContent = 'Data updated ' + agoText;
-    $('hg-data-freshness').style.color = ago > 60 ? '#f59e0b' : '#4ade80';
-  }
+  // Filter opps by year
+  _hgSalesOpps = _hgSalesAllOpps.filter(function(o) {
+    return (o.createdDate || '').substring(0, 4) === year;
+  });
+
+  // Recompute stats from filtered opps
+  computeAndRenderHGYear();
+}
+
+function computeAndRenderHGYear() {
+  var opps = _hgSalesOpps;
+  var totalOpps = opps.length;
+  var totalRevenue = 0, totalSqft = 0, wonCount = 0, lostCount = 0, openCount = 0, pipelineValue = 0;
+  var stageCounts = {};
+  var leadSourceCounts = {};
+  var leadSourceRevenue = {};
+  var monthlyRevenue = {};
+  var monthlyWon = {};
+
+  opps.forEach(function(o) {
+    var stage = o.stage || 'Unknown';
+    var amount = o.amount || 0;
+    var sqft = o.sqft || 0;
+    var source = o.leadSource || 'Unknown';
+    var closeDate = o.closeDate || '';
+    var created = o.createdDate || '';
+
+    stageCounts[stage] = (stageCounts[stage] || 0) + 1;
+    leadSourceCounts[source] = (leadSourceCounts[source] || 0) + 1;
+
+    if (HG_WON_STAGES[stage]) {
+      wonCount++;
+      totalRevenue += amount;
+      totalSqft += sqft;
+      leadSourceRevenue[source] = (leadSourceRevenue[source] || 0) + amount;
+      var mk = (closeDate || created).substring(0, 7);
+      if (mk) {
+        monthlyRevenue[mk] = (monthlyRevenue[mk] || 0) + amount;
+        monthlyWon[mk] = (monthlyWon[mk] || 0) + 1;
+      }
+    } else if (HG_LOST_STAGES[stage]) {
+      lostCount++;
+    } else {
+      openCount++;
+      pipelineValue += amount;
+    }
+  });
+
+  var decided = wonCount + lostCount;
+  var closeRate = decided > 0 ? (wonCount / decided * 100).toFixed(1) : '0.0';
+  var avgDeal = wonCount > 0 ? Math.round(totalRevenue / wonCount) : 0;
 
   // KPIs
-  $('hg-kpi-total-opps').textContent = fmt(s.totalOpportunities);
-  $('hg-kpi-won').textContent = fmt(s.wonCount);
-  $('hg-kpi-open').textContent = fmt(s.openCount);
-  $('hg-kpi-lost').textContent = fmt(s.lostCount);
-  $('hg-kpi-revenue').textContent = fmtD(s.totalRevenue);
-  $('hg-kpi-close-rate').textContent = s.closeRate + '%';
-  $('hg-kpi-avg-deal').textContent = fmtD(s.avgDealSize);
-  $('hg-kpi-pipeline').textContent = fmtD(s.pipelineValue);
-  $('hg-kpi-leads').textContent = fmt(s.totalLeads);
-  $('hg-kpi-converted').textContent = fmt(s.convertedLeads);
-  $('hg-kpi-sqft').textContent = fmt(s.totalSqft);
+  $('hg-kpi-total-opps').textContent = fmt(totalOpps);
+  $('hg-kpi-won').textContent = fmt(wonCount);
+  $('hg-kpi-open').textContent = fmt(openCount);
+  $('hg-kpi-lost').textContent = fmt(lostCount);
+  $('hg-kpi-revenue').textContent = fmtD(totalRevenue);
+  $('hg-kpi-close-rate').textContent = closeRate + '%';
+  $('hg-kpi-avg-deal').textContent = fmtD(avgDeal);
+  $('hg-kpi-pipeline').textContent = fmtD(pipelineValue);
 
-  // Pipeline funnel
-  var funnel = _hgSalesData.stageFunnel || [];
+  // Lead stats — from raw summary (not year-filtered, but show total context)
+  var s = _hgSalesRaw.summary || {};
+  $('hg-kpi-leads').textContent = fmt(s.totalLeads || 0);
+  $('hg-kpi-converted').textContent = fmt(s.convertedLeads || 0);
+  $('hg-kpi-sqft').textContent = fmt(Math.round(totalSqft));
+
+  // Pipeline funnel — ordered
+  var STAGE_ORDER = [
+    '1st Presentation Set', 'Not Sold - Needs Follow Up',
+    'Sales Closed Won - Needs Approval', 'Sales Closed Won - Approved',
+    'Job Scheduled', 'Complete - Unpaid', 'Completed - Paid',
+    'Closed Lost', 'Cancelled Contract'
+  ];
+  var funnel = [];
+  var seen = {};
+  STAGE_ORDER.forEach(function(st) { if (stageCounts[st]) { funnel.push({stage:st,count:stageCounts[st]}); seen[st]=1; }});
+  Object.keys(stageCounts).sort().forEach(function(st) { if (!seen[st]) funnel.push({stage:st,count:stageCounts[st]}); });
+
   var maxStage = 0;
   funnel.forEach(function(f) { if (f.count > maxStage) maxStage = f.count; });
   var funnelHtml = '';
@@ -1599,69 +1701,60 @@ function renderHGSalesDashboard() {
   $('hg-stage-funnel').innerHTML = funnelHtml;
 
   // Lead sources
-  var sources = _hgSalesData.leadSources || [];
-  var maxSrc = 0;
-  sources.forEach(function(s) { if (s.count > maxSrc) maxSrc = s.count; });
+  var sources = Object.keys(leadSourceCounts).sort(function(a,b) { return leadSourceCounts[b] - leadSourceCounts[a]; });
+  var maxSrc = sources.length > 0 ? leadSourceCounts[sources[0]] : 0;
   var srcHtml = '';
-  sources.forEach(function(s) {
-    var pct = maxSrc > 0 ? (s.count / maxSrc * 100).toFixed(1) : 0;
-    var revStr = s.revenue > 0 ? ' · ' + fmtD(s.revenue) : '';
+  sources.forEach(function(src) {
+    var cnt = leadSourceCounts[src];
+    var pct = maxSrc > 0 ? (cnt / maxSrc * 100).toFixed(1) : 0;
     srcHtml += '<div class="hg-bar-row">'
-      + '<span class="hg-bar-label" title="' + s.source + '">' + s.source + '</span>'
+      + '<span class="hg-bar-label" title="' + src + '">' + src + '</span>'
       + '<div class="hg-bar-bg"><div class="hg-bar-fill" style="width:' + pct + '%;background:#6366f1"></div></div>'
-      + '<span class="hg-bar-val">' + s.count + '</span></div>';
+      + '<span class="hg-bar-val">' + cnt + '</span></div>';
   });
   $('hg-lead-sources').innerHTML = srcHtml;
 
   // Monthly revenue
-  var months = _hgSalesData.monthlyRevenue || [];
+  var sortedMonths = Object.keys(monthlyRevenue).sort();
   var maxRev = 0;
-  months.forEach(function(m) { if (m.revenue > maxRev) maxRev = m.revenue; });
-  // Show last 12 months max
-  var recentMonths = months.slice(-12);
+  sortedMonths.forEach(function(m) { if (monthlyRevenue[m] > maxRev) maxRev = monthlyRevenue[m]; });
   var monthHtml = '';
-  recentMonths.forEach(function(m) {
-    var pct = maxRev > 0 ? (m.revenue / maxRev * 100).toFixed(1) : 0;
-    var label = m.month.slice(2); // "26-01" from "2026-01"
+  sortedMonths.forEach(function(m) {
+    var rev = monthlyRevenue[m];
+    var pct = maxRev > 0 ? (rev / maxRev * 100).toFixed(1) : 0;
+    var parts = m.split('-');
+    var monthNames = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var label = monthNames[parseInt(parts[1])] || parts[1];
     monthHtml += '<div class="hg-month-row">'
       + '<span class="hg-month-label">' + label + '</span>'
       + '<div class="hg-month-bar"><div class="hg-month-fill" style="width:' + pct + '%"></div></div>'
-      + '<span class="hg-month-val">' + fmtD(m.revenue) + '</span></div>';
+      + '<span class="hg-month-val">' + fmtD(rev) + '</span></div>';
   });
-  $('hg-monthly-revenue').innerHTML = monthHtml || '<div style="color:#555;font-size:0.75rem">No monthly data available</div>';
+  $('hg-monthly-revenue').innerHTML = monthHtml || '<div style="color:#555;font-size:0.75rem">No monthly data yet</div>';
 
   // Populate filters
   var stageSel = $('hg-stage-filter');
   stageSel.innerHTML = '<option value="all">All Stages</option>';
-  var stageSet = {};
-  _hgSalesOpps.forEach(function(o) { stageSet[o.stage] = (stageSet[o.stage] || 0) + 1; });
-  Object.keys(stageSet).sort().forEach(function(st) {
-    stageSel.innerHTML += '<option value="' + st + '">' + st + ' (' + stageSet[st] + ')</option>';
+  Object.keys(stageCounts).sort().forEach(function(st) {
+    stageSel.innerHTML += '<option value="' + st + '">' + st + ' (' + stageCounts[st] + ')</option>';
   });
-
   var srcSel = $('hg-source-filter');
   srcSel.innerHTML = '<option value="all">All Sources</option>';
-  var srcSet = {};
-  _hgSalesOpps.forEach(function(o) { srcSet[o.leadSource] = (srcSet[o.leadSource] || 0) + 1; });
-  Object.keys(srcSet).sort().forEach(function(s) {
-    srcSel.innerHTML += '<option value="' + s + '">' + s + ' (' + srcSet[s] + ')</option>';
+  sources.forEach(function(src) {
+    srcSel.innerHTML += '<option value="' + src + '">' + src + ' (' + leadSourceCounts[src] + ')</option>';
   });
 
   // Render table
   renderHGOppTable(_hgSalesOpps);
 
   // Timestamp
-  var ts = _hgSalesData.generated ? new Date(_hgSalesData.generated).toLocaleString() : '';
+  var ts = _hgSalesRaw.generated ? new Date(_hgSalesRaw.generated).toLocaleString() : '';
   $('hg-sales-timestamp').textContent = 'Data refreshed: ' + ts;
-
-  $('hg-sales-loading').style.display = 'none';
-  $('hg-sales-content').style.display = 'block';
 }
 
 function renderHGOppTable(opps) {
   var html = '';
   opps.forEach(function(o) {
-    var stageColor = HG_STAGE_COLORS[o.stage] || '#666';
     var pillClass = 'new';
     if (o.stage.indexOf('Paid') >= 0 || o.stage.indexOf('Approved') >= 0) pillClass = 'converted';
     else if (o.stage.indexOf('Lost') >= 0 || o.stage.indexOf('Cancel') >= 0) pillClass = 'lost';
