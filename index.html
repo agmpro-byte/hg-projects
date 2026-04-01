@@ -1695,45 +1695,49 @@ function computeAndRenderHGYear() {
   var leadsToday = 0, leadsWeek = 0, leadsMonth = 0;
   leads.forEach(function(l) {
     var d = l.createdDate || '';
-    if (d === todayStr || d === tomorrowStr) leadsToday++;
+    if (d === todayStr) leadsToday++;
     if (d >= weekStr) leadsWeek++;
     if (d.slice(0, 7) === monthStr) leadsMonth++;
   });
 
-  // Appointment activity from opps (using appointmentDate)
-  var APPT_SET_STAGES = {'1st Presentation Set':1, 'Not Sold - Needs Follow Up':1,
-    'Sales Closed Won - Needs Approval':1, 'Sales Closed Won - Approved':1,
-    'Job Scheduled':1, 'Complete - Unpaid':1, 'Completed - Paid':1,
-    'Completed - Paid/Retention Owed':1, 'Completed- Paid':1,
-    'Follow Up Appointment Set':1, 'No Show':1, 'Canceled Appointment':1,
-    'Turf Replacement - Completed':1};
+  // Appointment activity from opps
+  // "Appts Set" = opp CREATED date (creating an opp = booking the appointment)
+  // "Appts Ran" = appointment DATE in the past (appt actually happened)
+  // Stages that indicate an appointment was ran (past first presentation)
   var APPT_RAN_STAGES = {'Not Sold - Needs Follow Up':1,
     'Sales Closed Won - Needs Approval':1, 'Sales Closed Won - Approved':1,
     'Job Scheduled':1, 'Complete - Unpaid':1, 'Completed - Paid':1,
     'Completed - Paid/Retention Owed':1, 'Completed- Paid':1,
     'Follow Up Appointment Set':1, 'Turf Replacement - Completed':1};
 
-  var apptsToday = 0, apptsWeek = 0, apptsMonth = 0, apptsRanMonth = 0;
+  var apptsSetToday = 0, apptsSetWeek = 0, apptsSetMonth = 0, apptsRanMonth = 0;
   var totalApptsBooked = 0, totalApptsRan = 0;
 
   opps.forEach(function(o) {
+    var created = o.createdDate || '';
     var apptDate = o.appointmentDate || '';
-    if (APPT_SET_STAGES[o.stage]) totalApptsBooked++;
+
+    // "Appts Set" = opp created in the time period (all opps = appointments booked)
+    totalApptsBooked++;
+    if (created === todayStr) apptsSetToday++;
+    if (created >= weekStr) apptsSetWeek++;
+    if (created.slice(0, 7) === monthStr) apptsSetMonth++;
+
+    // "Appts Ran" = stage beyond first presentation
     if (APPT_RAN_STAGES[o.stage]) totalApptsRan++;
-    if (apptDate) {
-      if (apptDate === todayStr || apptDate === tomorrowStr) apptsToday++;
-      if (apptDate >= weekStr) apptsWeek++;
-      if (apptDate.slice(0, 7) === monthStr) apptsMonth++;
-      if (apptDate < todayStr && apptDate.slice(0, 7) === monthStr) apptsRanMonth++;
+
+    // "Appts Ran This Month" = appointment date in current month AND before today
+    if (apptDate && apptDate < todayStr && apptDate.slice(0, 7) === monthStr) {
+      apptsRanMonth++;
     }
   });
 
   $('hg-kpi-leads-today').textContent = fmt(leadsToday);
   $('hg-kpi-leads-week').textContent = fmt(leadsWeek);
   $('hg-kpi-leads-month').textContent = fmt(leadsMonth);
-  $('hg-kpi-appts-today').textContent = fmt(apptsToday);
-  $('hg-kpi-appts-week').textContent = fmt(apptsWeek);
-  $('hg-kpi-appts-month').textContent = fmt(apptsMonth);
+  $('hg-kpi-appts-today').textContent = fmt(apptsSetToday);
+  $('hg-kpi-appts-week').textContent = fmt(apptsSetWeek);
+  $('hg-kpi-appts-month').textContent = fmt(apptsSetMonth);
   $('hg-kpi-appts-ran-month').textContent = fmt(apptsRanMonth);
   $('hg-kpi-leads').textContent = fmt(leads.length);
   $('hg-kpi-appts-booked').textContent = fmt(totalApptsBooked);
