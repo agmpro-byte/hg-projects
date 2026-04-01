@@ -378,6 +378,22 @@ h1, h2, h3, h4, .section-hdr, .stat-label {
 .ql h4 { font-size: 0.8125rem; font-weight: 600; color: #fff; }
 .ql p { font-size: 0.6875rem; color: #444; margin-top: 1px; }
 
+/* ── YEAR TABS ── */
+.yr-tab {
+  padding: 8px 18px;
+  border: none;
+  background: none;
+  color: #fff;
+  font-family: 'Sora', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s;
+}
+.yr-tab:hover { color: #ccc; }
+.yr-tab.active { color: #fff; border-bottom-color: #3b82f6; }
+
 /* ── HG SALES DASHBOARD ── */
 .hg-bar-row {
   display: flex;
@@ -1289,9 +1305,9 @@ h1, h2, h3, h4, .section-hdr, .stat-label {
       <!-- Year Selector -->
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
         <div id="hg-year-tabs" style="display:flex;gap:0">
-          <button class="tab active" data-year="2026" onclick="switchHGYear('2026')" style="padding:8px 18px;font-size:0.75rem">2026</button>
-          <button class="tab" data-year="2025" onclick="switchHGYear('2025')" style="padding:8px 18px;font-size:0.75rem">2025</button>
-          <button class="tab" data-year="2024" onclick="switchHGYear('2024')" style="padding:8px 18px;font-size:0.75rem">2024</button>
+          <button class="yr-tab active" data-year="2026" onclick="switchHGYear('2026')">2026</button>
+          <button class="yr-tab" data-year="2025" onclick="switchHGYear('2025')">2025</button>
+          <button class="yr-tab" data-year="2024" onclick="switchHGYear('2024')">2024</button>
         </div>
         <div id="hg-data-freshness" style="font-size:0.65rem;color:#555"></div>
       </div>
@@ -1553,7 +1569,9 @@ var _hgSalesData = null;      // Computed stats for current year
 var _hgSalesOpps = [];        // Filtered opps for current year
 var _hgSalesAllOpps = [];     // All opps from JSON
 var _hgSalesAllLeads = [];    // All lead records from JSON
+var _hgSalesAllEvents = [];   // All Sales Presentation events from JSON
 var _hgSalesYearLeads = [];   // Filtered leads for current year
+var _hgSalesYearEvents = [];  // Filtered events for current year
 var _hgActiveYear = '2026';
 var _hgSortCol = '';
 var _hgSortDir = 'asc';
@@ -1593,6 +1611,7 @@ function loadHGSalesData() {
       _hgSalesRaw = data;
       _hgSalesAllOpps = data.opportunities || [];
       _hgSalesAllLeads = data.leads || [];
+      _hgSalesAllEvents = data.events || [];
 
       // Show freshness
       if (data.generated) {
@@ -1617,7 +1636,7 @@ function loadHGSalesData() {
 function switchHGYear(year) {
   _hgActiveYear = year;
   // Update year tab styling
-  document.querySelectorAll('#hg-year-tabs .tab').forEach(function(btn) {
+  document.querySelectorAll('#hg-year-tabs .yr-tab').forEach(function(btn) {
     btn.classList.toggle('active', btn.getAttribute('data-year') === year);
   });
   // Reset sort
@@ -1631,6 +1650,9 @@ function switchHGYear(year) {
   });
   _hgSalesYearLeads = _hgSalesAllLeads.filter(function(l) {
     return (l.createdDate || '').substring(0, 4) === year;
+  });
+  _hgSalesYearEvents = _hgSalesAllEvents.filter(function(e) {
+    return (e.createdDate || '').substring(0, 4) === year;
   });
 
   // Recompute stats from filtered data
@@ -1700,36 +1722,28 @@ function computeAndRenderHGYear() {
     if (d.slice(0, 7) === monthStr) leadsMonth++;
   });
 
-  // Appointment activity from opps
-  // "Appts Set" = opp CREATED date (creating an opp = booking the appointment)
-  // "Appts Ran" = appointment DATE in the past (appt actually happened)
-  // Stages that indicate an appointment was ran (past first presentation)
-  var APPT_RAN_STAGES = {'Not Sold - Needs Follow Up':1,
-    'Sales Closed Won - Needs Approval':1, 'Sales Closed Won - Approved':1,
-    'Job Scheduled':1, 'Complete - Unpaid':1, 'Completed - Paid':1,
-    'Completed - Paid/Retention Owed':1, 'Completed- Paid':1,
-    'Follow Up Appointment Set':1, 'Turf Replacement - Completed':1};
-
+  // Appointment activity from SF Events (Subject = 'Sales Presentation')
+  // This is the actual data source the SF Call Center Dashboard uses
+  var events = _hgSalesYearEvents;
   var apptsSetToday = 0, apptsSetWeek = 0, apptsSetMonth = 0, apptsRanMonth = 0;
-  var totalApptsBooked = 0, totalApptsRan = 0;
+  var totalApptsBooked = events.length;
 
-  opps.forEach(function(o) {
-    var created = o.createdDate || '';
-    var apptDate = o.appointmentDate || '';
-
-    // "Appts Set" = opp created in the time period (all opps = appointments booked)
-    totalApptsBooked++;
+  events.forEach(function(e) {
+    var created = e.createdDate || '';
+    var startDate = e.startDate || '';
     if (created === todayStr) apptsSetToday++;
     if (created >= weekStr) apptsSetWeek++;
     if (created.slice(0, 7) === monthStr) apptsSetMonth++;
-
-    // "Appts Ran" = stage beyond first presentation
-    if (APPT_RAN_STAGES[o.stage]) totalApptsRan++;
-
-    // "Appts Ran This Month" = appointment date in current month AND before today
-    if (apptDate && apptDate < todayStr && apptDate.slice(0, 7) === monthStr) {
+    // Ran this month = start date in current month and before today
+    if (startDate && startDate < todayStr && startDate.slice(0, 7) === monthStr) {
       apptsRanMonth++;
     }
+  });
+
+  // "Total Appts Ran" = events with start date in the past
+  var totalApptsRan = 0;
+  events.forEach(function(e) {
+    if (e.startDate && e.startDate < todayStr) totalApptsRan++;
   });
 
   $('hg-kpi-leads-today').textContent = fmt(leadsToday);
