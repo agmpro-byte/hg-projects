@@ -1434,7 +1434,8 @@ var _hgSalesAllOpps = [];     // All opps from JSON
 var _hgSalesAllLeads = [];    // All lead records from JSON
 var _hgSalesAllEvents = [];   // All Sales Presentation events from JSON
 var _hgSalesYearLeads = [];   // Filtered leads for current year
-var _hgSalesYearEvents = [];  // Filtered events for current year
+var _hgSalesYearEvents = [];  // Filtered events for current year (by createdDate)
+var _hgSalesYearEventsRan = []; // Filtered events for current year (by startDate)
 var _hgActiveYear = '2026';
 var _hgSortCol = '';
 var _hgSortDir = 'asc';
@@ -1520,15 +1521,23 @@ function switchHGYear(year) {
   _hgSortDir = 'asc';
   document.querySelectorAll('#hg-opp-table .sort-arrow').forEach(function(el) { el.className = 'sort-arrow'; });
 
-  // Filter opps and leads by year
+  // Filter opps by year: Won/Lost by CloseDate, Open by CreatedDate
   _hgSalesOpps = _hgSalesAllOpps.filter(function(o) {
+    var stage = o.stage || '';
+    if (HG_WON_STAGES[stage] || HG_LOST_STAGES[stage]) {
+      return (o.closeDate || '').substring(0, 4) === year;
+    }
     return (o.createdDate || '').substring(0, 4) === year;
   });
   _hgSalesYearLeads = _hgSalesAllLeads.filter(function(l) {
     return (l.createdDate || '').substring(0, 4) === year;
   });
+  // Events: "set" filtered by createdDate, "ran" filtered by startDate
   _hgSalesYearEvents = _hgSalesAllEvents.filter(function(e) {
     return (e.createdDate || '').substring(0, 4) === year;
+  });
+  _hgSalesYearEventsRan = _hgSalesAllEvents.filter(function(e) {
+    return (e.startDate || '').substring(0, 4) === year;
   });
 
   // Recompute stats from filtered data
@@ -1599,26 +1608,30 @@ function computeAndRenderHGYear() {
   });
 
   // Appointment activity from SF Events (Subject = 'Sales Presentation')
-  // This is the actual data source the SF Call Center Dashboard uses
-  var events = _hgSalesYearEvents;
+  // "Set/Booked" = filtered by createdDate year; "Ran" = filtered by startDate year
+  var eventsSet = _hgSalesYearEvents;
+  var eventsRan = _hgSalesYearEventsRan;
   var apptsSetToday = 0, apptsSetWeek = 0, apptsSetMonth = 0, apptsRanMonth = 0;
-  var totalApptsBooked = events.length;
+  var totalApptsBooked = eventsSet.length;
 
-  events.forEach(function(e) {
+  eventsSet.forEach(function(e) {
     var created = e.createdDate || '';
-    var startDate = e.startDate || '';
     if (created === todayStr) apptsSetToday++;
     if (created >= weekStr) apptsSetWeek++;
     if (created.slice(0, 7) === monthStr) apptsSetMonth++;
-    // Ran this month = start date in current month and before today
+  });
+
+  // "Ran" metrics use events filtered by startDate year
+  eventsRan.forEach(function(e) {
+    var startDate = e.startDate || '';
     if (startDate && startDate < todayStr && startDate.slice(0, 7) === monthStr) {
       apptsRanMonth++;
     }
   });
 
-  // "Total Appts Ran" = events with start date in the past
+  // "Total Appts Ran" = events with startDate in this year and in the past
   var totalApptsRan = 0;
-  events.forEach(function(e) {
+  eventsRan.forEach(function(e) {
     if (e.startDate && e.startDate < todayStr) totalApptsRan++;
   });
 
